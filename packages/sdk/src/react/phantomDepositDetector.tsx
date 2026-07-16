@@ -39,7 +39,7 @@ export interface UsePhantomDepositDetectorArgs {
   label?: string;
 }
 
-/** Detects and flags **phantom deposits**: pending notes (leafIndex<0)
+/** Detects and flags **phantom deposits**: pending notes (`leafIndex < 0`)
  *  whose deposit transaction *reverted*, so the commitment was never
  *  inserted and the note can never reconcile to a leaf. Such a note
  *  otherwise sits as "Pending" forever; flagging it `"failed"` lets the
