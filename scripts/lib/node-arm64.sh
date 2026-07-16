@@ -50,6 +50,15 @@ setup_node_run() {
     exit 1
   fi
 
+  # `arch -arm64` only pins the *root* Node. Child processes re-resolve `node`
+  # on PATH, so if an x64-only Node (a common nvm build) sits ahead of the
+  # arm64 one, every descendant silently drops back to x64 — `next build`
+  # fails there, because Turbopack evaluates CSS in a child Node and then
+  # loads the x64 lightningcss binding, which isn't installed. Putting the
+  # arm64 Node's directory first makes the whole tree resolve to it.
+  PATH="$(dirname "$arm64_node"):$PATH"
+  export PATH
+
   # npm-cli.js lives at <node-prefix>/lib/node_modules/npm/bin/npm-cli.js for
   # every standard install (system, Homebrew, nvm). Running it via the arm64
   # Node keeps full `npm` semantics while forcing native arm64.

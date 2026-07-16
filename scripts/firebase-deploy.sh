@@ -9,6 +9,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
+# These are Next.js builds, so they need the same arm64 Node pinning the dev
+# launchers use: the native addons installed here (@next/swc, lightningcss)
+# are arm64-only, and an x64 Node — a Rosetta terminal or an x64 nvm build —
+# fails to load them.
+source "$ROOT_DIR/scripts/lib/node-arm64.sh"
+setup_node_run
+
 ALL_TARGETS=(hub docs pro pay relayer)
 # `"${@:-${ALL_TARGETS[@]}}"` collapses the default into one quoted
 # string when no args are passed, so an explicit branch is needed to
@@ -66,7 +73,7 @@ for target in "${TARGETS[@]}"; do
   # restore runs, so we rely on the EXIT trap to put .env.local back.
   # On success the trap is cleared so the next iteration installs its
   # own and we restore manually.
-  ( cd "$dir" && npm run build )
+  ( cd "$dir" && "${NODE_RUN[@]}" run build )
   if [ -n "$ENV_BACKUP" ]; then
     mv "$ENV_BACKUP" "$ENV_LOCAL"
     trap - EXIT INT TERM
