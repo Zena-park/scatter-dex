@@ -34,7 +34,7 @@ does **not** start one).
 | --- | --- | --- |
 | **shared-orderbook + settlement-verifier + commitment-indexer** | GCP e2-micro (`zkscatter-node`, `us-central1-a`, COS) — `deploy/gcp` | `http://136.115.115.93:4000` (`GET /health` → `{"status":"ok"}`; leaves at `GET /api/commitments`) |
 | **zk-relayer** | per-operator (not on the central box) | operator's own `:3002` |
-| **zk-X509 CMS backend** | Firebase (`zkscatter` project) — Cloud Functions + Firestore | `https://zkscatter.web.app/api/registries` |
+| **zk-X509 CMS backend** | Firebase (`zk-x509` project) — Cloud Functions + Firestore; deployed from the `zk-X509` repo | `https://zk-x509.web.app/api/registries` |
 | **Frontends (hub/pay/pro/operators/admin)** | run locally per team member | `localhost:400x` |
 
 The orderbook is **multi-network** (`chain_id` partitioned): reads take
