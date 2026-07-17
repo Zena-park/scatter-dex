@@ -107,12 +107,15 @@ EOF
 fi
 
 # --- central / shared service URLs (overridable) ---------------------------
-# Central shared orderbook (static-reserved IP — safe to default; see K0 ops).
-ORDERBOOK_URL="${SCATTER_ORDERBOOK_URL:-http://136.115.115.93:4000}"
-# zk-X509 CA-registration website (central/operator-hosted; dev default).
-ZKX509_URL="${ZKX509_WEB_URL:-http://localhost:3000}"
-# A relayer endpoint (operator-hosted; dev default).
-RELAYER_URL="${ZK_RELAYER_URL:-http://localhost:3002}"
+# Central shared orderbook and the bot-1 relayer, both behind Caddy on the
+# central box. The old http://<ip>:4000 / :3002 endpoints stopped answering when
+# the TLS overlay took over those ports, so these defaults must stay https.
+ORDERBOOK_URL="${SCATTER_ORDERBOOK_URL:-https://orderbook.zkscatter.tokamon.io}"
+# zk-X509 CA-registration website (central/operator-hosted).
+ZKX509_URL="${ZKX509_WEB_URL:-https://zk-x509.web.app}"
+# A relayer endpoint. Defaults to the shared bot-1; point it at your own with
+# ZK_RELAYER_URL=http://localhost:3002 when running one locally.
+RELAYER_URL="${ZK_RELAYER_URL:-https://relayer.zkscatter.tokamon.io}"
 
 # Hub app links (local dev ports — match each app's `next dev -p`).
 HUB_URL="${SCATTER_HUB_URL:-http://localhost:4006}"
