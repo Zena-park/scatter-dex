@@ -184,6 +184,21 @@ export function describeHydrationError(
   if (/429|too many requests|rate.?limit|throttl/i.test(msg)) {
     return `${node} is rate-limiting requests (HTTP 429). Wait a moment and retry${switchHint}.`;
   }
+  // Rebuilding the tree means reading every insert since the pool was
+  // deployed, which free public endpoints increasingly refuse: they gate
+  // "archive" history behind an API key, or cap a getLogs range far below
+  // the pool's age. The user can't fix the public node, but connecting a
+  // wallet on this network routes the read through their own node instead,
+  // so say that rather than surfacing the provider's raw JSON-RPC blob.
+  if (
+    /archive|personal token|api ?key|unauthorized|forbidden|\b403\b|-32602|block range|blocks? range|exceed|too (?:large|many) (?:a )?range/i.test(
+      msg,
+    )
+  ) {
+    return source === "rpc"
+      ? "The public node won't serve this network's full history (it needs a paid key). Connect your wallet on this network and the app will read through your wallet's node instead."
+      : `${node} won't serve the full commitment history — it limits archive queries. Switch your wallet to an RPC that allows them, then retry.`;
+  }
   return `Couldn't load the commitment tree from ${node}: ${msg}. Check the network connection and retry${switchHint}.`;
 }
 
