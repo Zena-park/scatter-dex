@@ -60,9 +60,6 @@ export const APPS: AppEntry[] = [
     href: APP_URLS.pro,
     cta: "Open Pro",
     accent: "var(--color-accent-pro)",
-    // Hosting:disabled at launch — pay is the only user app live with
-    // hub on day one. Flip to false once the pro deploy is re-enabled.
-    comingSoon: true,
   },
   {
     id: "pay",
@@ -114,9 +111,6 @@ export const APPS: AppEntry[] = [
     href: APP_URLS.relayer,
     cta: "Open Relayer",
     accent: "var(--color-accent-relayer)",
-    // Hosting:disabled at launch. Flip to false once the operators
-    // console deploy is re-enabled.
-    comingSoon: true,
   },
 ];
 
