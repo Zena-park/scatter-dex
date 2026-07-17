@@ -10,6 +10,20 @@ import { MULTICALL3_ADDRESS, MULTICALL3_ABI } from "./multicall";
  *  here (`InjectedMulticallProvider` coalesces via Multicall3 instead). */
 const PUBLIC_RPC_BATCH_MAX = 3;
 
+/** Watch events by polling `eth_getLogs` rather than a server-side filter id.
+ *
+ *  ethers' default for `contract.on()` is `eth_newFilter` + repeated
+ *  `eth_getFilterChanges`, which assumes the node remembers the filter. Neither
+ *  node we read through does, reliably:
+ *    - drpc's free tier doesn't implement `eth_newFilter` at all
+ *      ("method is not available on freetier").
+ *    - Load-balanced endpoints (the user's wallet RPC included) create the
+ *      filter on one backend and poll another, so every poll answers
+ *      "filter not found" — a console full of errors and a subscription that
+ *      silently never fires.
+ *  Polling getLogs is stateless, so it works on both. */
+const EVENT_POLLING = true;
+
 /** Build a read-only JsonRpcProvider for a chain's RPC.
  *
  *  No singleton/cache here — caller decides lifetime. The React wallet
@@ -24,6 +38,7 @@ const PUBLIC_RPC_BATCH_MAX = 3;
 export function getReadProvider(rpcUrl: string): ethers.JsonRpcProvider {
   return new ethers.JsonRpcProvider(rpcUrl, undefined, {
     batchMaxCount: PUBLIC_RPC_BATCH_MAX,
+    polling: EVENT_POLLING,
   });
 }
 
@@ -92,7 +107,10 @@ export class InjectedMulticallProvider extends ethers.BrowserProvider {
     network?: ethers.Networkish,
     opts?: { stallMs?: number },
   ) {
-    super(eip1193, network);
+    // `polling` matters here as much as on the public provider: a wallet's
+    // RPC is load-balanced too, so a filter created on one backend is polled
+    // on another and every `eth_getFilterChanges` answers "filter not found".
+    super(eip1193, network, { polling: EVENT_POLLING });
     // ethers' own JSON-RPC batcher uses a 10ms stall; match it so a
     // page's same-tick reads land in one window without adding
     // noticeable latency.
