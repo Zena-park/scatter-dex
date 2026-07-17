@@ -11,6 +11,10 @@ on-chain, while zk-X509 identity gating keeps the protocol regulatory-compliant.
 
 ## 🚀 Try it — live on Sepolia
 
+Nothing to build or configure. Bring MetaMask on Sepolia with a little test ETH
+([faucet](https://sepoliafaucet.com); TON/USDC/USDT from the
+[Tokamak faucet](https://docs.tokamak.network/home/service-guide/faucet-testnet)).
+
 | | | |
 | --- | --- | --- |
 | **[Hub](https://zkscatter-hub.web.app)** | start here | picks the right app for you |
@@ -18,11 +22,30 @@ on-chain, while zk-X509 identity gating keeps the protocol regulatory-compliant.
 | **[Pro](https://zkscatter-pro.web.app)** | OTC trading | private limit orders, no front-running |
 | **[Relayer console](https://zkscatter-relayer.web.app)** | operators | run a relayer node |
 | **[Developer docs](https://zkscatter-docs.web.app)** | developers | guides + SDK API reference |
+| **[Admin](https://zkscatter-admin.web.app)** | operators of *this* deployment | governance — gated by the on-chain owner |
 
-Testnet only — bring [Sepolia ETH](https://sepoliafaucet.com) and a wallet. Trading
-and claiming are gated behind [zk-X509](https://zk-x509.web.app) identity
-verification, and the demo runs against one relayer (`bot-1`), so treat it as a
-walkthrough rather than a liveness guarantee.
+Trading and claiming are gated behind [zk-X509](https://zk-x509.web.app) identity
+verification. Testnet only, and one relayer (`bot-1`) serves the whole demo — a
+walkthrough, not a liveness guarantee.
+
+<details>
+<summary>What's actually running</summary>
+
+Contract addresses come from the committed ledger,
+[`contracts/deployments/11155111.json`](contracts/deployments/11155111.json).
+
+| | Where |
+| --- | --- |
+| Frontends | Firebase Hosting — `zkscatter-<app>.web.app` (`scripts/firebase-deploy.sh`) |
+| Shared orderbook, settlement verifier, indexers | one GCP e2-micro, behind Caddy → `https://orderbook.zkscatter.tokamon.io` |
+| Relayer `bot-1` | same box → `https://relayer.zkscatter.tokamon.io` (also its on-chain `RelayerRegistry` URL) |
+| zk-X509 identity | [separate repo](https://github.com/tokamak-network/zk-X509) → `https://zk-x509.web.app` |
+
+The backends must be https: the apps are served over https, and a browser blocks
+http calls from an https page. Details in
+[operations/deployment.md](docs/operations/deployment.md).
+
+</details>
 
 ---
 
@@ -47,49 +70,15 @@ code below. Each piece stands on its own.
 
 ## The apps — why you'd use each
 
-| App | Why you'd use it | Status |
-|-----|------------------|--------|
-| **Pay** | Send payroll / grants / bonuses to many people in **one signature**, without publishing who got how much. Recipients claim **gaslessly** and can't see each other's amounts. | wireframe |
-| **Pro** | Place a **private limit order** — **no MEV**, no desk spread, no balance leak. Matched off-chain, settled on-chain, proceeds claimed gaslessly. | live |
-| **Operators** | **Run a relayer** and earn deterministic on-chain fees settling private order flow. Permissionless bond, no vendor lock-in, can't see order amounts/sides. | live |
-| **Admin** | Govern the deployment — CA issuance, sanctions, protocol params, treasury (internal console). | live |
+| App | Why you'd use it | Where |
+|-----|------------------|-------|
+| **Pay** | Send payroll / grants / bonuses to many people in **one signature**, without publishing who got how much. Recipients claim **gaslessly** and can't see each other's amounts. | hosted |
+| **Pro** | Place a **private limit order** — **no MEV**, no desk spread, no balance leak. Matched off-chain, settled on-chain, proceeds claimed gaslessly. | hosted |
+| **Operators** | **Run a relayer** and earn deterministic on-chain fees settling private order flow. Permissionless bond, no vendor lock-in, can't see order amounts/sides. | hosted |
+| **Admin** | Govern the deployment — CA issuance, sanctions, protocol params, treasury. | hosted |
 
 > 📘 **Full user guide → [docs/user-guide.md](docs/user-guide.md)** — what each app is
 > for, the benefits, and step-by-step **how to use it**, all in one place.
-
----
-
-## Try it on Sepolia (no build — just a wallet)
-
-The fastest way to see it working. You run the frontends locally against the
-**shared Sepolia deployment**, so the whole team hits the same contracts,
-relayer, and orderbook. Every address comes from the committed ledger
-(`contracts/deployments/11155111.json`) — **you configure nothing**. All you need
-is **MetaMask on Sepolia with a little test ETH**.
-
-```bash
-./scripts/run-scatter-web.sh <app> sepolia   # app = hub | pay | pro | operators | admin
-```
-
-| app       | dev URL                 | what it is                        |
-|-----------|-------------------------|-----------------------------------|
-| pay       | http://localhost:4001   | private bulk payouts              |
-| pro       | http://localhost:4003   | private OTC trading               |
-| operators | http://localhost:4004   | operator / KYC onboarding console |
-| admin     | http://localhost:4005   | protocol + KYC review console     |
-| hub       | http://localhost:4006   | navigation hub                    |
-
-Get test tokens (TON / USDC / USDT) from the
-[Tokamak faucet](https://docs.tokamak.network/home/service-guide/faucet-testnet),
-then trade. The identity website (zk-X509) lives in a
-[separate repo](https://github.com/tokamak-network/zk-X509).
-
-> 📖 **Team testing guide → [docs/operations/sepolia-team-setup.md](docs/operations/sepolia-team-setup.md)**
-> — step-by-step setup, getting test tokens, the relayer model, shared-infra URLs,
-> and **how to report bugs / file issues**. Start here.
->
-> 🗺️ **System architecture & diagram → [docs/operations/sepolia-architecture.md](docs/operations/sepolia-architecture.md)**
-> — how the Sepolia deployment is wired (frontends, VM services, on-chain contracts, external infra).
 
 ---
 
@@ -126,6 +115,19 @@ Frontend (Next.js)  →  ZK Relayer (Node.js)   →  Contracts (Solidity / Found
 ---
 
 ## Run locally (development)
+
+### Against the live Sepolia deployment
+
+Runs a frontend on your machine but against the same contracts, relayer, and
+orderbook everything else uses. Addresses come from the committed ledger, so
+there is nothing to configure — MetaMask on Sepolia is enough.
+
+```bash
+./scripts/run-scatter-web.sh <app> sepolia   # hub | pay | pro | operators | admin
+```
+
+Ports: pay 4001 · pro 4003 · operators 4004 · admin 4005 · hub 4006. Step-by-step
+setup and how to file bugs: [operations/sepolia-team-setup.md](docs/operations/sepolia-team-setup.md).
 
 ### Quick start (mock mode — no zk-X509)
 
