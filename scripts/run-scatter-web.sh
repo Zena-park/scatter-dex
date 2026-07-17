@@ -88,7 +88,7 @@ LEDGER="$ROOT_DIR/contracts/deployments/${CHAIN_ID}.json"
 # write gas pre-flight (kept off MetaMask's throttled node). All three work on a
 # public node, so the key is OPTIONAL; supplying your own just avoids public
 # rate limits under team load.
-PUBLIC_RPC_DEFAULT="https://ethereum-sepolia.publicnode.com"
+PUBLIC_RPC_DEFAULT="https://sepolia.drpc.org"
 RPC_URL=""
 if [ "$APP" != "hub" ]; then
   RPC_VAR="$(echo "$NETWORK" | tr '[:lower:]' '[:upper:]')_RPC_URL"   # SEPOLIA_RPC_URL
