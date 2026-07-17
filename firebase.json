@@ -24,6 +24,14 @@
     "header will flag it via a console CSP violation — fix the call",
     "site, don't loosen the header.",
     "",
+    "The ZK apps do need `'wasm-unsafe-eval'` though: the commitment tree",
+    "hashes with Poseidon (WebAssembly) on the main thread, and without it",
+    "`WebAssembly.compile()` is refused — the tree never hydrates, which",
+    "surfaces as whatever the getLogs fallback fails on rather than as the",
+    "CSP violation it is. `'wasm-unsafe-eval'` permits WebAssembly only; JS",
+    "`eval()`/`Function()` stay blocked, so the XSS-to-RCE property above",
+    "still holds. It is NOT a step toward `'unsafe-eval'`.",
+    "",
     "connect-src is intentionally permissive (`https: wss:`) because RPC",
     "and relayer hosts are per-deployment env vars. Tighten to an",
     "explicit allow-list once we ship a stable per-environment config.",
@@ -110,7 +118,7 @@
         {
           "source": "**",
           "headers": [
-            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
             { "key": "X-Content-Type-Options", "value": "nosniff" },
             { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
             { "key": "X-Frame-Options", "value": "DENY" },
@@ -141,7 +149,7 @@
         {
           "source": "**",
           "headers": [
-            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
             { "key": "X-Content-Type-Options", "value": "nosniff" },
             { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
             { "key": "X-Frame-Options", "value": "DENY" },
@@ -172,7 +180,7 @@
         {
           "source": "**",
           "headers": [
-            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
             { "key": "X-Content-Type-Options", "value": "nosniff" },
             { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
             { "key": "X-Frame-Options", "value": "DENY" },
