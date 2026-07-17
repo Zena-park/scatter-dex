@@ -182,14 +182,14 @@ docs/         Guides, design docs, operations runbooks
 
 ## Documentation
 
-| Topic | Doc |
-|-------|-----|
-| **User guide — what each app is for & how to use it** | [user-guide.md](docs/user-guide.md) |
-| **Team testing on Sepolia** | [operations/sepolia-team-setup.md](docs/operations/sepolia-team-setup.md) |
-| Sepolia system architecture & diagram | [operations/sepolia-architecture.md](docs/operations/sepolia-architecture.md) |
-| Local development setup | [operations/local-setup.md](docs/operations/local-setup.md) |
-| Running a relayer | [operations/running-a-relayer.md](docs/operations/running-a-relayer.md) |
-| Registering a relayer (KYC) | [operations/registering-a-relayer.md](docs/operations/registering-a-relayer.md) |
-| ZK artifacts on deployed networks | [operations/zk-artifacts.md](docs/operations/zk-artifacts.md) |
-| Security & audit | [security/AUDIT.md](docs/security/AUDIT.md) · [security/HARDENING.md](docs/security/HARDENING.md) |
+Two sets, and they don't overlap:
+
+- **[Developer docs](https://zkscatter-docs.web.app)** — concepts, step-by-step
+  guides, and the SDK API reference. Written for people building on zkScatter;
+  source lives in [`developers/`](developers/).
+- **[`docs/`](docs/)** — architecture and decision records, design specs (including
+  work that isn't built yet), operations runbooks, security notes. Written for
+  people working on zkScatter itself.
+
+The [user guide](docs/user-guide.md) covers what each app is for and how to use it.
 
