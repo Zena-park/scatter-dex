@@ -1,11 +1,17 @@
 {
   "_csp_notes": [
     "Strict CSP — rejects `unsafe-eval` in `script-src` so an XSS",
-    "escalation cannot pivot into RCE. Currently applied to the deployed",
-    "targets (hub, pay, pro). Remaining targets (docs, relayer) stay",
-    "header-stripped until they're re-enabled — when that happens,",
-    "copy the matching CSP block from hub (static, no ZK) or pay (ZK",
-    "in WebWorkers, wagmi RPC, relayer + shared-orderbook fetch).",
+    "escalation cannot pivot into RCE. Applied to hub, pay, pro and admin.",
+    "docs and relayer stay header-stripped — when that changes, copy the",
+    "matching block from hub (static, no ZK) or pay (ZK in WebWorkers,",
+    "wagmi RPC, relayer + shared-orderbook fetch).",
+    "",
+    "apps/admin is the governance console (CA issuance, sanctions, protocol",
+    "params, treasury). Every action it exposes is gated on-chain by",
+    "`onlyOwner` and off-chain by the SIWE admin allowlist, so hosting it",
+    "does not grant authority — but it is not meant to be found, hence the",
+    "`X-Robots-Tag: noindex`. It reuses pay's block for the same reasons",
+    "pro does.",
     "",
     "apps/pro is a funds-handling app (orders/withdraw/claim, in-memory",
     "EdDSA keys) that runs snarkjs in WebWorkers and talks to RPC +",
@@ -140,6 +146,38 @@
             { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
             { "key": "X-Frame-Options", "value": "DENY" },
             { "key": "Permissions-Policy", "value": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" }
+          ]
+        },
+        {
+          "source": "**/*.@(js|css|woff2|woff|ttf|svg|png|jpg|jpeg|webp|ico)",
+          "headers": [
+            { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+          ]
+        },
+        {
+          "source": "**/*.@(html|json)",
+          "headers": [
+            { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "admin",
+      "public": "apps/admin/out",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Permissions-Policy", "value": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" },
+            { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
           ]
         },
         {

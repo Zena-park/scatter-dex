@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build hub/docs/pro/pay/relayer as static exports and deploy to Firebase Hosting.
+# Build the frontends as static exports and deploy them to Firebase Hosting.
 # Usage:
-#   ./scripts/firebase-deploy.sh           # deploy all default targets (hub/docs/pro/pay/relayer)
+#   ./scripts/firebase-deploy.sh           # deploy all default targets
 #   ./scripts/firebase-deploy.sh hub       # deploy a single target
 #   ./scripts/firebase-deploy.sh hub docs  # deploy multiple targets
 set -euo pipefail
@@ -16,7 +16,7 @@ cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/node-arm64.sh"
 setup_node_run
 
-ALL_TARGETS=(hub docs pro pay relayer)
+ALL_TARGETS=(hub docs pro pay relayer admin)
 # `"${@:-${ALL_TARGETS[@]}}"` collapses the default into one quoted
 # string when no args are passed, so an explicit branch is needed to
 # preserve word splitting for the array assignment.
@@ -34,6 +34,7 @@ declare -A APP_DIR=(
   # Site is named `zkscatter-relayer` (operator-facing brand) but the
   # source lives in apps/operators (engineering name for the console).
   [relayer]="apps/operators"
+  [admin]="apps/admin"
 )
 
 # Production URLs baked into static exports at build time. `.env.local`

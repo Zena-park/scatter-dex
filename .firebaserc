@@ -19,6 +19,9 @@
         ],
         "relayer": [
           "zkscatter-relayer"
+        ],
+        "admin": [
+          "zkscatter-admin"
         ]
       }
     }
