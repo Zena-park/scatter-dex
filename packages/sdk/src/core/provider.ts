@@ -1,6 +1,15 @@
 import { ethers } from "ethers";
 import { MULTICALL3_ADDRESS, MULTICALL3_ABI } from "./multicall";
 
+/** Cap on JSON-RPC requests per batched HTTP POST. ethers defaults to 100;
+ *  free public tiers are far stricter — drpc rejects the whole POST with
+ *  HTTP 500 and "Batch of more than 3 requests are not allowed on free
+ *  tier". The failure is indiscriminate: every call in the batch dies, so
+ *  a page that reads a handful of contracts on mount just breaks. Three is
+ *  what the public default tolerates; the wallet path doesn't come through
+ *  here (`InjectedMulticallProvider` coalesces via Multicall3 instead). */
+const PUBLIC_RPC_BATCH_MAX = 3;
+
 /** Build a read-only JsonRpcProvider for a chain's RPC.
  *
  *  No singleton/cache here — caller decides lifetime. The React wallet
@@ -8,13 +17,14 @@ import { MULTICALL3_ADDRESS, MULTICALL3_ABI } from "./multicall";
  *  instance, but Node scripts and tests usually want fresh providers.
  *
  *  This is the *fallback* read path: it's used when no wallet is
- *  connected (or the wallet is on the wrong chain). A `JsonRpcProvider`
- *  already auto-batches same-tick calls into one HTTP POST, so it needs
- *  no Multicall help. Once a wallet is connected, reads route through
- *  `InjectedMulticallProvider` instead so they run on the user's own
- *  node — see `useWallet` in `@zkscatter/sdk/react`. */
+ *  connected (or the wallet is on the wrong chain). Once a wallet is
+ *  connected, reads route through `InjectedMulticallProvider` instead so
+ *  they run on the user's own node — see `useWallet` in
+ *  `@zkscatter/sdk/react`. */
 export function getReadProvider(rpcUrl: string): ethers.JsonRpcProvider {
-  return new ethers.JsonRpcProvider(rpcUrl);
+  return new ethers.JsonRpcProvider(rpcUrl, undefined, {
+    batchMaxCount: PUBLIC_RPC_BATCH_MAX,
+  });
 }
 
 interface PendingCall {
