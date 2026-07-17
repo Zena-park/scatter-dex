@@ -72,13 +72,19 @@ export const KNOWN_EXPLORER_BASES: Record<number, string> = {
  *  Used as the default *read* provider when no `NEXT_PUBLIC_RPC_URL` is set:
  *  pre-connect reads, wrong-network fallback, and the write gas pre-flight all
  *  run here, while transactions are still signed and sent through the user's
- *  wallet. A *dead* default is what we must avoid — the old `rpc.sepolia.org`
- *  now serves an Apache 404 HTML page, which ethers can't parse into a typed
- *  error and surfaces as the opaque "could not coalesce error" on every
- *  estimateGas/read. The publicnode endpoint below answers JSON-RPC (including
- *  `eth_estimateGas`) and tolerates request bursts without rate-limiting. */
+ *  wallet.
+ *
+ *  A default has to serve *history*, not just answer, because the commitment
+ *  tree is rebuilt from every insert since the pool's deploy block. Both past
+ *  defaults failed on that axis in different ways: `rpc.sepolia.org` started
+ *  serving an Apache 404 HTML page (ethers can't type that, so every read
+ *  surfaced as the opaque "could not coalesce error"), and publicnode began
+ *  refusing archive ranges outright — "Archive requests require a personal
+ *  token", HTTP 403 — which no chunk size works around. drpc answers the same
+ *  range on its free tier. Test `eth_getLogs` from the deploy block, not just
+ *  `eth_blockNumber`, before swapping this again. */
 export const KNOWN_DEFAULT_RPC_URLS: Record<number, string> = {
-  11155111: "https://ethereum-sepolia.publicnode.com",
+  11155111: "https://sepolia.drpc.org",
 };
 
 /** Default read RPC for a chain, or "" when none is known (callers then rely
