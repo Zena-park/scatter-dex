@@ -10,11 +10,19 @@ contracts/foundry.lock
 .dev-logs/
 
 # Environment files
+# `.env.local` is per-developer and carries their own RPC key — never commit it.
+# `.env.production` is the opposite: it's the deploy config every build of a
+# hosted app needs, and it holds no secrets (public contract addresses from
+# contracts/deployments/<chainId>.json, a keyless public RPC, our own hostnames).
+# Ignoring it meant the config for the live sites existed on one laptop only, so
+# a clone couldn't reproduce a deploy — the build would silently fall back to
+# ZERO_ADDRESS and serve the simulated path instead of failing.
 .env
 .env.local
 *.env.local
 .env.*
 !.env.example
+!.env.production
 
 # Database files
 *.db
