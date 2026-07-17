@@ -8,7 +8,7 @@ Self-contained docker compose stack that runs on a single VM (GCP e2-micro targe
 | --- | --- |
 | `compose.yml` | shared-orderbook + settlement-verifier (zk-relayer behind the `relayer` profile, opt-in) |
 | `compose.tls.yml` | overlay that adds Caddy with auto Let's Encrypt |
-| `Caddyfile` | subdomain routing (`orderbook.<DOMAIN>`, `zk.<DOMAIN>`) |
+| `Caddyfile` | subdomain routing (`orderbook.<DOMAIN>`, `relayer.<DOMAIN>`) |
 | `.env.example` | env template — copy to `.env` |
 | `start.sh` / `stop.sh` / `logs.sh` | convenience wrappers |
 
@@ -54,12 +54,12 @@ It then exposes `http://<host>:3002`.
 
 ## TLS mode (with a domain)
 
-> `Caddyfile` routes `zk.<DOMAIN>` → `zk-relayer`. That backend only exists
+> `Caddyfile` routes `relayer.<DOMAIN>` → `zk-relayer`. That backend only exists
 > when the `relayer` profile is enabled, so on the default (orderbook-only)
-> box just point `orderbook.<DOMAIN>`; `zk.<DOMAIN>` applies only to a host
+> box just point `orderbook.<DOMAIN>`; `relayer.<DOMAIN>` applies only to a host
 > that co-locates a relayer.
 
-Point `orderbook.<DOMAIN>` (and `zk.<DOMAIN>` only with the `relayer` profile)
+Point `orderbook.<DOMAIN>` (and `relayer.<DOMAIN>` only with the `relayer` profile)
 A records at the VM, then:
 
 ```bash
