@@ -11,10 +11,20 @@ export interface CommitmentInsertedRow {
   leafIndex: number;
 }
 
-/** Default `eth_getLogs` window. Public Sepolia nodes reject ranges
- *  over 50 000 ("exceed maximum block range"); 50 000 is the widest
- *  window that still clears that cap in a single request. */
-const DEFAULT_CHUNK_SIZE = 50_000;
+/** Default `eth_getLogs` window. This used to be 50 000, on the belief
+ *  that public Sepolia nodes accepted that much; they don't. The free
+ *  tiers now cap the range around 10 000 (drpc: "ranges over 10000
+ *  blocks are not supported on freetier"), so the very first — and
+ *  widest — chunk failed, defeating the point of chunking.
+ *
+ *  Deliberately kept well under that cap rather than at it. The scan
+ *  runs against whatever node the user's wallet is pointed at, whose
+ *  limit we neither know nor control, and providers differ on whether
+ *  the cap counts blocks or the from/to delta — sitting on the boundary
+ *  turns that off-by-one into a hard failure. The cost of a smaller
+ *  window is a few more requests on a path that only runs when the
+ *  indexer is unavailable. */
+const DEFAULT_CHUNK_SIZE = 5_000;
 
 /** Block range for hydration. Always pass `fromBlock` = the pool's
  *  deploy block: scanning from genesis is wasteful and, on a chain
@@ -28,7 +38,7 @@ export interface CommitmentInsertedHistoryOptions {
    *  number-only type would silently drop them — accept all three. */
   fromBlock?: string | number | bigint;
   toBlock?: string | number | bigint;
-  /** Max blocks per `eth_getLogs` window (default 50 000). */
+  /** Max blocks per `eth_getLogs` window (default 5 000). */
   chunkSize?: number;
 }
 

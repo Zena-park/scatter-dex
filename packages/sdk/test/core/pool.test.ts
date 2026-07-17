@@ -73,8 +73,11 @@ describe("loadCommitmentInsertedHistory", () => {
       fromBlock: 11_008_264,
       toBlock: 11_026_479,
     });
-    expect(windows).toHaveLength(1); // 18 215 blocks < default 50 000
+    // 18 216 blocks at the 5 000 default → 4 windows; the point of the test
+    // is that the first one starts at fromBlock, never at genesis.
+    expect(windows).toHaveLength(4);
     expect(windows[0][0]).toBe(11_008_264);
+    expect(windows[windows.length - 1][1]).toBe(11_026_479);
   });
 
   it("accepts string / bigint block tags (env vars arrive as strings)", async () => {
@@ -84,7 +87,10 @@ describe("loadCommitmentInsertedHistory", () => {
       fromBlock: "11008264",
       toBlock: 11_026_479n,
     });
-    expect(windows).toEqual([[11_008_264, 11_026_479]]);
+    // The tags parsed (not silently 0) — the window starts at fromBlock and
+    // the scan ends exactly at toBlock.
+    expect(windows[0][0]).toBe(11_008_264);
+    expect(windows[windows.length - 1][1]).toBe(11_026_479);
   });
 
   it("hex-string block tags parse too", async () => {
@@ -104,8 +110,8 @@ describe("loadCommitmentInsertedHistory", () => {
       toBlock: 120_100,
       chunkSize: Infinity,
     });
-    expect(windows.length).toBe(3); // chunked at the 50 000 default
-    expect(windows[0]).toEqual([0, 49_999]);
+    expect(windows.length).toBe(25); // chunked at the 5 000 default
+    expect(windows[0]).toEqual([0, 4_999]);
   });
 
   it("clamps a negative block tag to 0 (never forwards a negative to queryFilter)", async () => {
