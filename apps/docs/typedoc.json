@@ -12,6 +12,12 @@
   "tsconfig": "../../packages/sdk/tsconfig.json",
   "out": "../../developers/sdk/api",
   "plugin": ["typedoc-plugin-markdown"],
+  // One page per module, not per member. The default ("members") emitted a
+  // page per class/function — ~380 of them — and Nextra inlines the whole
+  // page tree into every page, so the build grew with the square of the page
+  // count: 436 MB of HTML for an SDK reference, single pages over 1 MB.
+  // Grouping by module keeps it linear.
+  "outputFileStrategy": "modules",
   "fileExtension": ".mdx",
   "entryFileName": "index",
   "readme": "none",
