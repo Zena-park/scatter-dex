@@ -116,7 +116,7 @@ flowchart TB
 | claim-indexer | — | same image | shared DB | Scans `PrivateClaim` → shared DB (served by shared-orderbook as `/api/claim-nullifiers`) |
 | zk-relayer | 3002 | Node 20-slim · Express 4 · ethers 6 · better-sqlite3 | SQLite `zk-relayer.db` | Per-operator, optional (relayer compose profile); holds operator key; async `SettlementWorker` (202 Accepted → settle later); SIWE admin bound to operator wallet |
 
-- **Live Sepolia box**: `http://136.115.115.93:4000` (shared-orderbook).
+- **Live Sepolia box**: `https://orderbook.zkscatter.tokamon.io` (shared-orderbook).
 - **Indexer-first claim resolution**: SDK reads `/api/claim-nullifiers` first (authoritative, monotonic), with per-leaf RPC `eth_call` fallback.
 
 ### On-chain (Sepolia, chainId 11155111, deploy block 11094792)

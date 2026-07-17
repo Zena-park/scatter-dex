@@ -9,6 +9,23 @@ on-chain, while zk-X509 identity gating keeps the protocol regulatory-compliant.
 
 ---
 
+## 🚀 Try it — live on Sepolia
+
+| | | |
+| --- | --- | --- |
+| **[Hub](https://zkscatter-hub.web.app)** | start here | picks the right app for you |
+| **[Pay](https://zkscatter-pay.web.app)** | bulk payouts | pay many recipients, amounts hidden |
+| **[Pro](https://zkscatter-pro.web.app)** | OTC trading | private limit orders, no front-running |
+| **[Relayer console](https://zkscatter-relayer.web.app)** | operators | run a relayer node |
+| **[Developer docs](https://zkscatter-docs.web.app)** | developers | guides + SDK API reference |
+
+Testnet only — bring [Sepolia ETH](https://sepoliafaucet.com) and a wallet. Trading
+and claiming are gated behind [zk-X509](https://zk-x509.web.app) identity
+verification, and the demo runs against one relayer (`bot-1`), so treat it as a
+walkthrough rather than a liveness guarantee.
+
+---
+
 ## 📖 Read the series first (Medium)
 
 New here? Read the Medium series for the *why* and the *how*, then dive into the

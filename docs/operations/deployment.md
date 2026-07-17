@@ -32,10 +32,23 @@ does **not** start one).
 
 | What | Where | Endpoint |
 | --- | --- | --- |
-| **shared-orderbook + settlement-verifier + commitment-indexer** | GCP e2-micro (`zkscatter-node`, `us-central1-a`, COS) — `deploy/gcp` | `http://136.115.115.93:4000` (`GET /health` → `{"status":"ok"}`; leaves at `GET /api/commitments`) |
-| **zk-relayer** | per-operator (not on the central box) | operator's own `:3002` |
+| **shared-orderbook + settlement-verifier + commitment-indexer** | GCP e2-micro (`zkscatter-node`, `us-central1-a`, COS) — `deploy/gcp` | `https://orderbook.zkscatter.tokamon.io` (`GET /health` → `{"status":"ok"}`; leaves at `GET /api/commitments`) |
+| **zk-relayer** (`bot-1`) | co-located on the central box (`relayer` profile) | `https://relayer.zkscatter.tokamon.io` |
 | **zk-X509 CMS backend** | Firebase (`zk-x509` project) — Cloud Functions + Firestore; deployed from the `zk-X509` repo | `https://zk-x509.web.app/api/registries` |
-| **Frontends (hub/pay/pro/operators/admin)** | run locally per team member | `localhost:400x` |
+| **Frontends (hub/docs/pay/pro/operators)** | Firebase Hosting (`zkscatter` project) — `scripts/firebase-deploy.sh` | `https://zkscatter-<target>.web.app` |
+| **admin** | no Hosting target — run locally | `localhost:4005` |
+
+The backends sit behind Caddy (`deploy/runtime/compose.tls.yml`), which terminates
+TLS on `<sub>.zkscatter.tokamon.io` and drops the direct `:4000`/`:3002` port
+mappings — the old `http://136.115.115.93:<port>` endpoints no longer answer, and
+a `.env.local` still pointing at them will fail. TLS is not cosmetic here: the
+hosted frontends are served over https, and a browser refuses to call http from
+an https page (and `firebase.json`'s CSP only allows https/wss).
+
+Caddy activates off the `domain` instance-metadata key. That metadata — not
+`deploy/gcp/deploy.env` — is what the running box reads; `deploy.env` is consumed
+only by `vm-create.sh`, so a stale value there stays invisible until the box is
+recreated.
 
 The orderbook is **multi-network** (`chain_id` partitioned): reads take
 `?chainId=`, the verifier runs one loop per chain (`CHAINS` env, with a
@@ -293,7 +306,7 @@ gcloud compute instances add-metadata zkscatter-node --zone us-central1-a \
 # 2. roll out (deploy.sh re-syncs compose so the commitment-indexer container exists)
 deploy/ci/deploy.sh
 # 3. verify
-curl 'http://136.115.115.93:4000/api/commitments?chainId=11155111'   # -> {"total":N,…}
+curl 'https://orderbook.zkscatter.tokamon.io/api/commitments?chainId=11155111'   # -> {"total":N,…}
 ```
 
 > ⚠️ **RPC range requirement.** The indexer walks `[deployBlock, latest]` in

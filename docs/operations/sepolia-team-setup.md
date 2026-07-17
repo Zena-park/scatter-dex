@@ -134,7 +134,7 @@ The generated `.env.local`:
 - **`NEXT_PUBLIC_RPC_URL`** is a keyless public-node default, used for reads
   only — your transactions always go through your wallet.
 - **Shared orderbook** defaults to the live central box
-  `http://136.115.115.93:4000` (static-reserved IP). Override with
+  `https://orderbook.zkscatter.tokamon.io`. Override with
   `SCATTER_ORDERBOOK_URL` if needed.
 - **Token list** is sourced from the **on-chain whitelist** (Pool ∩ Settlement
   `getWhitelistedTokens`), so no token addresses are baked into the env.
@@ -143,7 +143,7 @@ Optional overrides (export before running):
 
 | variable                 | purpose                                  | default                     |
 |--------------------------|------------------------------------------|-----------------------------|
-| `SCATTER_ORDERBOOK_URL`  | central shared orderbook                 | `http://136.115.115.93:4000`|
+| `SCATTER_ORDERBOOK_URL`  | central shared orderbook                 | `https://orderbook.zkscatter.tokamon.io`|
 | `ZKX509_WEB_URL`         | zk-X509 CA-registration website          | `http://localhost:3000`     |
 
 The apps show a **relayer selector** in the UI, populated from the on-chain
@@ -156,8 +156,8 @@ appear automatically.
 
 | service              | URL                                          | shared?                              |
 |----------------------|----------------------------------------------|--------------------------------------|
-| Shared orderbook     | `http://136.115.115.93:4000` (`/health`)     | **yes** — one central bulletin board |
-| Relayer **bot-1**    | `http://136.115.115.93:3002` (`/api/info`)   | no — run by an individual operator   |
+| Shared orderbook     | `https://orderbook.zkscatter.tokamon.io` (`/health`)     | **yes** — one central bulletin board |
+| Relayer **bot-1**    | `https://relayer.zkscatter.tokamon.io` (`/api/info`)   | no — run by an individual operator   |
 
 The **orderbook is the single central service** everyone shares (a GCP
 `e2-micro` on a static-reserved IP). The **relayer is not** shared infrastructure
